@@ -6,6 +6,7 @@
 #include "framework.h"
 #include "PicFiller.h"
 #include "PicFillerDlg.h"
+#include "StartScreen.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -71,7 +72,7 @@ BOOL CPicFillerApp::InitInstance()
 	// such as the name of your company or organization
 	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
 
-	CPicFillerDlg dlg;
+	StartScreen dlg;
 	m_pMainWnd = &dlg;
 	INT_PTR nResponse = dlg.DoModal();
 	if (nResponse == IDOK)

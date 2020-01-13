@@ -20,6 +20,7 @@
 #include "addColor.h"
 #include "addShape.h"
 #include "deleteShape.h"
+#include "StartScreen.h"
 
 using namespace std;
 
@@ -122,4 +123,5 @@ public:
 	CButton Delete;
 	afx_msg void OnBnClickedButton14();
 	afx_msg void OnBnClickedButton15();
+	afx_msg void OnBnClickedButton13();
 };

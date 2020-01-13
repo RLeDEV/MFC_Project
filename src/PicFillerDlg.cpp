@@ -129,6 +129,7 @@ BEGIN_MESSAGE_MAP(CPicFillerDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON19, &CPicFillerDlg::OnBnClickedButton19)
 	ON_BN_CLICKED(IDC_BUTTON14, &CPicFillerDlg::OnBnClickedButton14)
 	ON_BN_CLICKED(IDC_BUTTON15, &CPicFillerDlg::OnBnClickedButton15)
+	ON_BN_CLICKED(IDC_BUTTON13, &CPicFillerDlg::OnBnClickedButton13)
 END_MESSAGE_MAP()
 
 
@@ -505,6 +506,8 @@ void CPicFillerDlg::OnBnClickedButton18() // save btn
 	CFile file(L"FILE.$$", CFile::modeWrite | CFile::modeCreate); // write to or create a new one
 	CArchive archive(&file, CArchive::store);
 	myShapes.Serialize(archive);
+	InvalidateRect(&r);
+	AfxMessageBox(_T("Saved!"));
 }
 
 
@@ -514,6 +517,8 @@ void CPicFillerDlg::OnBnClickedButton19() // load btn
 		CFile file(L"FILE.$$", CFile::modeRead); // read a file
 		CArchive archive(&file, CArchive::load);
 		myShapes.Serialize(archive);
+		InvalidateRect(&r);
+		AfxMessageBox(_T("Last work loaded!"));
 	}
 	catch (...) {
 		// Error will be here
@@ -661,4 +666,15 @@ void CPicFillerDlg::OnBnClickedButton15() // undo btn
 		commands.pop();
 	}
 	InvalidateRect(&r);
+}
+
+
+void CPicFillerDlg::OnBnClickedButton13()
+{
+	while (!commands.empty())
+		commands.pop();
+	while (!undoes.empty())
+		undoes.pop();
+	myShapes.RemoveAll();
+	Invalidate();
 }

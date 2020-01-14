@@ -203,8 +203,8 @@ void CPicFillerDlg::OnPaint()
 {
 
 	CPaintDC dc(this);
-	for (int i = 0; i < myShapes.GetSize(); ++i)
-		myShapes[i]->draw(&dc);
+	for (int i = 0; i < Shapes.GetSize(); ++i)
+		Shapes[i]->draw(&dc);
 
 	CBrush brush(RGB(m_red.GetPos(), m_green.GetPos(), m_blue.GetPos()));
 	CPen pen(PS_SOLID, 1, RGB(m_red.GetPos(), m_green.GetPos(), m_blue.GetPos()));
@@ -505,7 +505,7 @@ void CPicFillerDlg::OnBnClickedButton18() // save btn
 {
 	CFile file(L"FILE.$$", CFile::modeWrite | CFile::modeCreate); // write to or create a new one
 	CArchive archive(&file, CArchive::store);
-	myShapes.Serialize(archive);
+	Shapes.Serialize(archive);
 	InvalidateRect(&r);
 	AfxMessageBox(_T("Saved!"));
 }
@@ -516,7 +516,7 @@ void CPicFillerDlg::OnBnClickedButton19() // load btn
 	try {
 		CFile file(L"FILE.$$", CFile::modeRead); // read a file
 		CArchive archive(&file, CArchive::load);
-		myShapes.Serialize(archive);
+		Shapes.Serialize(archive);
 		InvalidateRect(&r);
 		AfxMessageBox(_T("Last work loaded!"));
 	}
@@ -530,20 +530,20 @@ void CPicFillerDlg::OnMouseMove(UINT nFlags, CPoint point) {
 
 	if (isPressed) {
 		if (MovePressed) {
-			myShapes[moveIndex]->endP.x += (point.x - myShapes[moveIndex]->startP.x);
-			myShapes[moveIndex]->endP.y += (point.y - myShapes[moveIndex]->startP.y);
-			myShapes[moveIndex]->startP.x = point.x;
-			myShapes[moveIndex]->startP.y = point.y;
+			Shapes[moveIndex]->endP.x += (point.x - Shapes[moveIndex]->startP.x);
+			Shapes[moveIndex]->endP.y += (point.y - Shapes[moveIndex]->startP.y);
+			Shapes[moveIndex]->startP.x = point.x;
+			Shapes[moveIndex]->startP.y = point.y;
 			InvalidateRect(&r);
 		}
 		else {
 			if (ChangeSize) {
-				myShapes[moveIndex]->startP.x = point.x;
-				myShapes[moveIndex]->startP.y = point.y;
+				Shapes[moveIndex]->startP.x = point.x;
+				Shapes[moveIndex]->startP.y = point.y;
 				InvalidateRect(&r);
 			}
 			else {
-				myShapes[myShapes.GetSize() - 1]->setEnd(point);
+				Shapes[Shapes.GetSize() - 1]->setEnd(point);
 				InvalidateRect(&r);
 			}
 		}
@@ -554,8 +554,8 @@ void CPicFillerDlg::OnMouseMove(UINT nFlags, CPoint point) {
 void CPicFillerDlg::OnLButtonDown(UINT nFlags, CPoint point) {
 	isPressed = true;
 	if (MovePressed || ChangeSize) {
-		for (int i = myShapes.GetSize() - 1; i >= 0; i--) {
-			if (myShapes[i]->InShape(point)) { // if point is inside the shape
+		for (int i = Shapes.GetSize() - 1; i >= 0; i--) {
+			if (Shapes[i]->InShape(point)) { // if point is inside the shape
 				moveIndex = i;
 				break;
 			}
@@ -564,9 +564,9 @@ void CPicFillerDlg::OnLButtonDown(UINT nFlags, CPoint point) {
 	else {
 		if (FillPressed)
 		{
-			for (int i = myShapes.GetSize() - 1; i >= 0; i--) {
-				if (myShapes[i]->InShape(point)) {
-					command *c = new addColor(myShapes[i], RGB(m_red.GetPos(), m_green.GetPos(), m_blue.GetPos()));
+			for (int i = Shapes.GetSize() - 1; i >= 0; i--) {
+				if (Shapes[i]->InShape(point)) {
+					command *c = new addColor(Shapes[i], RGB(m_red.GetPos(), m_green.GetPos(), m_blue.GetPos()));
 					c->perform(); // changing the color of the shape
 					commands.push(c);
 					break;
@@ -575,11 +575,11 @@ void CPicFillerDlg::OnLButtonDown(UINT nFlags, CPoint point) {
 		}
 		else {
 			if (DeleteButton) {
-				for (int i = myShapes.GetSize() - 1; i >= 0; i--)
+				for (int i = Shapes.GetSize() - 1; i >= 0; i--)
 				{
-					if (myShapes[i]->InShape(point))
+					if (Shapes[i]->InShape(point))
 					{
-						command *c = new deleteShape(myShapes, myShapes[i]);
+						command *c = new deleteShape(Shapes, Shapes[i]);
 						c->perform();
 						commands.push(c);
 						InvalidateRect(&r);
@@ -598,7 +598,7 @@ void CPicFillerDlg::OnLButtonDown(UINT nFlags, CPoint point) {
 				case 3: s = new iTriangle(); break;
 				case 4: s = new iPentagon(); break;
 				}
-				command *c = new addShape(myShapes, s);
+				command *c = new addShape(Shapes, s);
 				c->perform(); // add shape to the array
 				commands.push(c);
 				s->setBg(RGB(m_red.GetPos(), m_green.GetPos(), m_blue.GetPos()));
@@ -622,7 +622,7 @@ void CPicFillerDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 
 void CPicFillerDlg::OnLButtonUp(UINT nFlags, CPoint point) {
 	if (!MovePressed && !FillPressed && !DeleteButton && !ChangeSize)
-		myShapes[myShapes.GetSize() - 1]->setEnd(point);
+		Shapes[Shapes.GetSize() - 1]->setEnd(point);
 	isPressed = false;
 	MovePressed = false;
 	FillPressed = false;
@@ -633,9 +633,9 @@ void CPicFillerDlg::OnLButtonUp(UINT nFlags, CPoint point) {
 }
 
 void CPicFillerDlg::OnRButtonDown(UINT nFlags, CPoint point) {
-	for (int i = myShapes.GetSize() - 1; i >= 0; i--) {
-		if (myShapes[i]->InShape(point)) {
-			command *c = new addColor(myShapes[i], (RGB(m_red.GetPos(), m_green.GetPos(), m_blue.GetPos())));
+	for (int i = Shapes.GetSize() - 1; i >= 0; i--) {
+		if (Shapes[i]->InShape(point)) {
+			command *c = new addColor(Shapes[i], (RGB(m_red.GetPos(), m_green.GetPos(), m_blue.GetPos())));
 			c->perform();
 			commands.push(c);
 			break;
@@ -675,6 +675,6 @@ void CPicFillerDlg::OnBnClickedButton13()
 		commands.pop();
 	while (!undoes.empty())
 		undoes.pop();
-	myShapes.RemoveAll();
+	Shapes.RemoveAll();
 	Invalidate();
 }

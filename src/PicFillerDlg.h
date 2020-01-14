@@ -94,7 +94,7 @@ private:
 	bool isPressed;
 	CPoint startP;
 	CPoint endP;
-	CTypedPtrArray<CObArray, Shape*> myShapes;
+	CTypedPtrArray<CObArray, Shape*> Shapes;
 	stack<command*> commands, undoes;
 public:
 	int penSize;

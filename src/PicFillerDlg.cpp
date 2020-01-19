@@ -89,6 +89,7 @@ void CPicFillerDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON18, save);
 	DDX_Control(pDX, IDC_BUTTON14, redo);
 	DDX_Control(pDX, IDC_BUTTON15, undo);
+	DDX_Control(pDX, IDC_BUTTON16, fillClr);
 }
 
 BEGIN_MESSAGE_MAP(CPicFillerDlg, CDialogEx)
@@ -231,9 +232,9 @@ void CPicFillerDlg::OnPaint()
 	button_gray.SetFaceColor(RGB(89, 89, 89), true);
 	button_black.SetFaceColor(RGB(0, 0, 0), true);
 	button_turkiz.SetFaceColor(RGB(0, 223, 223), true);
-
-	dc.SelectObject(old);
 	
+	dc.SelectObject(old);
+
 	CDialogEx::OnPaint();
 }
 
@@ -251,6 +252,7 @@ void CPicFillerDlg::OnNMCustomdrawSlider1(NMHDR *pNMHDR, LRESULT *pResult)
 	LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
 	// TODO: Add your control notification handler code here
 	*pResult = 0;
+
 }
 
 
@@ -467,7 +469,11 @@ void CPicFillerDlg::OnCbnSelchangeCombo1()
 
 void CPicFillerDlg::OnBnClickedButton16()
 {
-	FillClrPressed = true;
+	if(!commands.empty())
+		FillClrPressed = true;
+	else {
+		AfxMessageBox(_T("Draw a shape to enable this button."));
+	}
 }
 
 
@@ -537,6 +543,8 @@ void CPicFillerDlg::OnLButtonDown(UINT nFlags, CPoint point) {
 		s->setPenSize(penSize);
 		s->setStart(point);
 		s->setEnd(point);
+		undo.EnableWindow(TRUE);
+		fillClr.EnableWindow(TRUE);
 	}
 	Invalidate();
 	CDialogEx::OnLButtonDown(nFlags, point);
@@ -544,7 +552,20 @@ void CPicFillerDlg::OnLButtonDown(UINT nFlags, CPoint point) {
 
 void CPicFillerDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 {
-	InvalidateRect(&r);
+	//InvalidateRect(&r);
+	Invalidate();
+	UpdateData(TRUE);
+	// In case it's an unknown colors
+	if (m_red.GetPos() != 0 || m_red.GetPos() != 255 || m_red.GetPos() != 85 || m_red.GetPos() != 89) {
+		color_name = "Unknown";
+	}
+	else if (m_green.GetPos() != 128 || m_green.GetPos() != 141 || m_green.GetPos() != 104 || m_green.GetPos() != 255 || m_green.GetPos() != 89 || m_green.GetPos() != 233) {
+		color_name = "Unknown";
+	}
+	else if (m_blue.GetPos() != 223 || m_blue.GetPos() != 89 || m_blue.GetPos() != 28 || m_blue.GetPos() != 196 || m_blue.GetPos() != 180 || m_blue.GetPos() != 23 || m_blue.GetPos() != 85 || m_blue.GetPos() != 255 || m_blue.GetPos() != 0) {
+		color_name = "Unknown";
+	}
+	UpdateData(FALSE);
 	CDialogEx::OnHScroll(nSBCode, nPos, pScrollBar);
 }
 
@@ -584,6 +605,14 @@ void CPicFillerDlg::OnBnClickedButton14() // redo btn
 		c->perform();
 		commands.push(c);
 		undoes.pop();
+		undo.EnableWindow(TRUE);
+		fillClr.EnableWindow(TRUE);
+		if (undoes.empty()){
+			redo.EnableWindow(FALSE);
+		}
+	}
+	else {
+		AfxMessageBox(_T("Window is already up to date."));
 	}
 	InvalidateRect(&r);
 }
@@ -596,6 +625,14 @@ void CPicFillerDlg::OnBnClickedButton15() // undo btn
 		c->rollback();
 		undoes.push(c);
 		commands.pop();
+		redo.EnableWindow(TRUE); // Enabling redo btn because we did undo.
+		if (commands.empty()) { // In case there are no actions to undo, disabling the btn
+			undo.EnableWindow(FALSE);
+			fillClr.EnableWindow(FALSE);
+		}
+	}
+	else {
+		AfxMessageBox(_T("To enable undo, please make and action first."));
 	}
 	InvalidateRect(&r);
 }
@@ -608,5 +645,8 @@ void CPicFillerDlg::OnBnClickedButton13()
 	while (!undoes.empty())
 		undoes.pop();
 	Shapes.RemoveAll();
+	undo.EnableWindow(FALSE); // disabling redo & undo btns
+	redo.EnableWindow(FALSE);
+	fillClr.EnableWindow(FALSE);
 	Invalidate();
 }

@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "pch.h"
 #include "Line.h"
 #include "Shape.h"
@@ -13,8 +14,8 @@ void Line::innerDraw(CDC* dc) { // Drawing a line between startP to endP
 }
 
 bool Line::InShape(CPoint point) {
-	int x = startP.x - endP.x;
-	int y = startP.y - endP.y;
+	int x = abs(startP.x - endP.x);
+	int y = abs(startP.y - endP.y);
 
 	int minX = startP.x < endP.x ? startP.x : endP.x;
 	int maxX = startP.x > endP.x ? startP.x : endP.x;

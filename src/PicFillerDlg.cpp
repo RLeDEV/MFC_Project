@@ -61,6 +61,7 @@ CPicFillerDlg::CPicFillerDlg(CWnd* pParent /*=nullptr*/)
 	ChangeSize = false;
 	isPressed = false;
 	FillPressed = false;
+	FillClrPressed = false;
 	MovePressed = false;
 	currentShape = 0; // Initialization for currentShape
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -90,7 +91,6 @@ void CPicFillerDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON18, save);
 	DDX_Control(pDX, IDC_BUTTON14, redo);
 	DDX_Control(pDX, IDC_BUTTON15, undo);
-	DDX_Control(pDX, IDC_BUTTON20, Delete);
 }
 
 BEGIN_MESSAGE_MAP(CPicFillerDlg, CDialogEx)
@@ -121,10 +121,8 @@ BEGIN_MESSAGE_MAP(CPicFillerDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_RADIO3, &CPicFillerDlg::OnBnClickedRadio3)
 	ON_BN_CLICKED(IDC_RADIO4, &CPicFillerDlg::OnBnClickedRadio4)
 	ON_BN_CLICKED(IDC_RADIO5, &CPicFillerDlg::OnBnClickedRadio5)
-	ON_BN_CLICKED(IDC_RADIO6, &CPicFillerDlg::OnBnClickedRadio6)
 	ON_CBN_SELCHANGE(IDC_COMBO1, &CPicFillerDlg::OnCbnSelchangeCombo1)
 	ON_BN_CLICKED(IDC_BUTTON16, &CPicFillerDlg::OnBnClickedButton16)
-	ON_BN_CLICKED(IDC_BUTTON17, &CPicFillerDlg::OnBnClickedButton17)
 	ON_BN_CLICKED(IDC_BUTTON18, &CPicFillerDlg::OnBnClickedButton18)
 	ON_BN_CLICKED(IDC_BUTTON19, &CPicFillerDlg::OnBnClickedButton19)
 	ON_BN_CLICKED(IDC_BUTTON14, &CPicFillerDlg::OnBnClickedButton14)
@@ -178,7 +176,7 @@ BOOL CPicFillerDlg::OnInitDialog()
 	m_blue.SetRangeMax(255);
 	m_blue.SetRangeMin(0);
 	// End of sliders
-	CheckRadioButton(IDC_RADIO1, IDC_RADIO6, IDC_RADIO1); // Setting first radio button to default
+	CheckRadioButton(IDC_RADIO1, IDC_RADIO5, IDC_RADIO1); // Setting first radio button to default
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -209,7 +207,6 @@ void CPicFillerDlg::OnPaint()
 	CBrush brush(RGB(m_red.GetPos(), m_green.GetPos(), m_blue.GetPos()));
 	CPen pen(PS_SOLID, 1, RGB(m_red.GetPos(), m_green.GetPos(), m_blue.GetPos()));
 	CBrush *old = dc.SelectObject(&brush);
-	CPen *oldP = dc.SelectObject(&pen);
 	dc.Rectangle(200, 400, 32, 300); // Real-time color rectangle
 	
 	button_red.m_nFlatStyle = CMFCButton::BUTTONSTYLE_NOBORDERS;
@@ -238,7 +235,6 @@ void CPicFillerDlg::OnPaint()
 	button_turkiz.SetFaceColor(RGB(0, 223, 223), true);
 
 	dc.SelectObject(old);
-	dc.SelectObject(oldP);
 	
 	CDialogEx::OnPaint();
 }
@@ -447,14 +443,6 @@ void CPicFillerDlg::OnBnClickedRadio5() // Trapez
 }
 
 
-
-
-void CPicFillerDlg::OnBnClickedRadio6() // Pentagon
-{
-		currentShape = 5;
-}
-
-
 void CPicFillerDlg::OnCbnSelchangeCombo1()
 {
 	int choose = penTypeBtn.GetCurSel();
@@ -462,27 +450,17 @@ void CPicFillerDlg::OnCbnSelchangeCombo1()
 	switch (choose) {
 	case 0:
 		{
-			penType = 1;
+			penType = 1; // Broken pen type 
 			break;
 		}
 	case 1:
 		{
-			penType = 4;
+			penType = 7; // Normal pen type
 			break;
 		}
 	case 2:
 		{
-			penType = 7;
-			break;
-		}
-	case 3:
-		{
-			penType = 9;
-			break;
-		}
-	case 4:
-		{
-			penType = 12;
+			penType = 4; // Very broken pen type
 			break;
 		}
 	}
@@ -492,12 +470,6 @@ void CPicFillerDlg::OnCbnSelchangeCombo1()
 void CPicFillerDlg::OnBnClickedButton16()
 {
 	FillClrPressed = true;
-}
-
-
-void CPicFillerDlg::OnBnClickedButton17()
-{
-	MoveShapePressed = true;
 }
 
 
@@ -521,7 +493,7 @@ void CPicFillerDlg::OnBnClickedButton19() // load btn
 		AfxMessageBox(_T("Last work loaded!"));
 	}
 	catch (...) {
-		// Error will be here
+		AfxMessageBox(_T("No file found."));
 	}
 }
 
@@ -529,86 +501,43 @@ void CPicFillerDlg::OnMouseMove(UINT nFlags, CPoint point) {
 	CPaintDC dc(this);
 
 	if (isPressed) {
-		if (MovePressed) {
-			Shapes[moveIndex]->endP.x += (point.x - Shapes[moveIndex]->startP.x);
-			Shapes[moveIndex]->endP.y += (point.y - Shapes[moveIndex]->startP.y);
-			Shapes[moveIndex]->startP.x = point.x;
-			Shapes[moveIndex]->startP.y = point.y;
-			InvalidateRect(&r);
-		}
-		else {
-			if (ChangeSize) {
-				Shapes[moveIndex]->startP.x = point.x;
-				Shapes[moveIndex]->startP.y = point.y;
-				InvalidateRect(&r);
-			}
-			else {
-				Shapes[Shapes.GetSize() - 1]->setEnd(point);
-				InvalidateRect(&r);
-			}
-		}
+		Shapes[Shapes.GetSize() - 1]->setEnd(point);
+		InvalidateRect(&r);
 	}
 	CDialogEx::OnMouseMove(nFlags, point);
 }
 
 void CPicFillerDlg::OnLButtonDown(UINT nFlags, CPoint point) {
 	isPressed = true;
-	if (MovePressed || ChangeSize) {
+	if (FillPressed)
+	{
 		for (int i = Shapes.GetSize() - 1; i >= 0; i--) {
-			if (Shapes[i]->InShape(point)) { // if point is inside the shape
-				moveIndex = i;
+			if (Shapes[i]->InShape(point)) {
+				command *c = new addColor(Shapes[i], RGB(m_red.GetPos(), m_green.GetPos(), m_blue.GetPos()));
+				c->perform(); // changing the color of the shape
+				commands.push(c);
 				break;
 			}
 		}
 	}
-	else {
-		if (FillPressed)
+	else { // New shape
+		Shape *s = 0;
+		switch (currentShape) // create the shape the user pressed
 		{
-			for (int i = Shapes.GetSize() - 1; i >= 0; i--) {
-				if (Shapes[i]->InShape(point)) {
-					command *c = new addColor(Shapes[i], RGB(m_red.GetPos(), m_green.GetPos(), m_blue.GetPos()));
-					c->perform(); // changing the color of the shape
-					commands.push(c);
-					break;
-				}
-			}
+		case 0: s = new Line(); break;
+		case 1: s = new iRectangle(); break;
+		case 2: s = new iEllipse(); break;
+		case 3: s = new iTriangle(); break;
 		}
-		else {
-			if (DeleteButton) {
-				for (int i = Shapes.GetSize() - 1; i >= 0; i--)
-				{
-					if (Shapes[i]->InShape(point))
-					{
-						command *c = new deleteShape(Shapes, Shapes[i]);
-						c->perform();
-						commands.push(c);
-						InvalidateRect(&r);
-						break;
-					}
-				}
-			}
-			else // new shape
-			{
-				Shape *s = 0;
-				switch (currentShape) // create the shape the user pressed
-				{
-				case 0: s = new Line(); break;
-				case 1: s = new iRectangle(); break;
-				case 2: s = new iEllipse(); break;
-				case 3: s = new iTriangle(); break;
-				case 4: s = new iPentagon(); break;
-				}
-				command *c = new addShape(Shapes, s);
-				c->perform(); // add shape to the array
-				commands.push(c);
-				s->setBg(RGB(m_red.GetPos(), m_green.GetPos(), m_blue.GetPos()));
-				s->setP(RGB(m_red.GetPos(), m_green.GetPos(), m_blue.GetPos()));
-				s->setPenType(penType);
-				s->setPenSize(penSize);
-				s->setStart(point);
-				s->setEnd(point);
-			}
-		}
+		command *c = new addShape(Shapes, s);
+		c->perform(); // add shape to the array
+		commands.push(c);
+		s->setBg(RGB(m_red.GetPos(), m_green.GetPos(), m_blue.GetPos()));
+		s->setP(RGB(m_red.GetPos(), m_green.GetPos(), m_blue.GetPos()));
+		s->setPenType(penType);
+		s->setPenSize(penSize);
+		s->setStart(point);
+		s->setEnd(point);
 	}
 	Invalidate();
 	CDialogEx::OnLButtonDown(nFlags, point);
@@ -624,24 +553,28 @@ void CPicFillerDlg::OnLButtonUp(UINT nFlags, CPoint point) {
 	if (!MovePressed && !FillPressed && !DeleteButton && !ChangeSize)
 		Shapes[Shapes.GetSize() - 1]->setEnd(point);
 	isPressed = false;
-	MovePressed = false;
-	FillPressed = false;
-	DeleteButton = false;
-	ChangeSize = false;
+	FillClrPressed = false;
 	Invalidate();
 	CDialogEx::OnLButtonUp(nFlags, point);
 }
 
 void CPicFillerDlg::OnRButtonDown(UINT nFlags, CPoint point) {
-	for (int i = Shapes.GetSize() - 1; i >= 0; i--) {
-		if (Shapes[i]->InShape(point)) {
-			command *c = new addColor(Shapes[i], (RGB(m_red.GetPos(), m_green.GetPos(), m_blue.GetPos())));
-			c->perform();
-			commands.push(c);
-			break;
+	if (FillClrPressed)
+	{
+		for (int i = Shapes.GetSize() - 1; i >= 0; i--) {
+			if (Shapes[i]->InShape(point)) {
+				command *c = new addColor(Shapes[i], (RGB(m_red.GetPos(), m_green.GetPos(), m_blue.GetPos())));
+				c->perform();
+				commands.push(c);
+				break;
+			}
 		}
+		FillClrPressed = false;
+		Invalidate();
 	}
-	Invalidate();
+	else {
+		AfxMessageBox(_T("Please enable color filling first."));
+	}
 	CDialogEx::OnRButtonDown(nFlags, point);
 }
 

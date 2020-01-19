@@ -26,6 +26,4 @@ void Shape::draw(CDC* dc) {
 	CBrush *oldBrush = dc->SelectObject(&brush); // saving
 	CPen *oldPen = dc->SelectObject(&pen); // saving
 	innerDraw(dc);
-	dc->SelectObject(oldPen);
-	dc->SelectObject(oldBrush);
 }

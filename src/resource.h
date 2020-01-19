@@ -30,7 +30,6 @@
 #define IDC_RADIO6                      1017
 #define IDC_BUTTON13                    1019
 #define IDC_BUTTON16                    1020
-#define IDC_BUTTON17                    1021
 #define IDC_SLIDER1                     1022
 #define IDC_SLIDER2                     1023
 #define IDC_SLIDER3                     1024

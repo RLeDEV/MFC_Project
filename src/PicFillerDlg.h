@@ -16,7 +16,6 @@
 #include "iEllipse.h"
 #include "iTriangle.h"
 #include "iTrapez.h"
-#include "iPentagon.h"
 #include "addColor.h"
 #include "addShape.h"
 #include "deleteShape.h"
@@ -108,19 +107,16 @@ public:
 	afx_msg void OnBnClickedRadio3();
 	afx_msg void OnBnClickedRadio4();
 	afx_msg void OnBnClickedRadio5();
-	afx_msg void OnBnClickedRadio6();
 	CString color_name;
 	afx_msg void OnCbnSelchangeCombo1();
 	CComboBox penTypeBtn;
 	afx_msg void OnBnClickedButton16();
-	afx_msg void OnBnClickedButton17();
 	afx_msg void OnBnClickedButton18();
 	afx_msg void OnBnClickedButton19();
 	CButton load;
 	CButton save;
 	CButton redo;
 	CButton undo;
-	CButton Delete;
 	afx_msg void OnBnClickedButton14();
 	afx_msg void OnBnClickedButton15();
 	afx_msg void OnBnClickedButton13();

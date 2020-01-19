@@ -58,11 +58,9 @@ CPicFillerDlg::CPicFillerDlg(CWnd* pParent /*=nullptr*/)
 	penSize = 1;
 	shapeType = 0;
 	currentShape = 1;
-	ChangeSize = false;
 	isPressed = false;
 	FillPressed = false;
 	FillClrPressed = false;
-	MovePressed = false;
 	currentShape = 0; // Initialization for currentShape
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -528,6 +526,7 @@ void CPicFillerDlg::OnLButtonDown(UINT nFlags, CPoint point) {
 		case 1: s = new iRectangle(); break;
 		case 2: s = new iEllipse(); break;
 		case 3: s = new iTriangle(); break;
+		case 4: s = new iTrapez(); break;
 		}
 		command *c = new addShape(Shapes, s);
 		c->perform(); // add shape to the array
@@ -550,7 +549,7 @@ void CPicFillerDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 }
 
 void CPicFillerDlg::OnLButtonUp(UINT nFlags, CPoint point) {
-	if (!MovePressed && !FillPressed && !DeleteButton && !ChangeSize)
+	if (!FillPressed)
 		Shapes[Shapes.GetSize() - 1]->setEnd(point);
 	isPressed = false;
 	FillClrPressed = false;

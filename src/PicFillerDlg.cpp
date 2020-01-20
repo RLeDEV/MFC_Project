@@ -61,6 +61,7 @@ CPicFillerDlg::CPicFillerDlg(CWnd* pParent /*=nullptr*/)
 	isPressed = false;
 	FillPressed = false;
 	FillClrPressed = false;
+	color_name = "Black"; // First color
 	currentShape = 0; // Initialization for currentShape
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -552,18 +553,17 @@ void CPicFillerDlg::OnLButtonDown(UINT nFlags, CPoint point) {
 
 void CPicFillerDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 {
-	//InvalidateRect(&r);
 	Invalidate();
 	UpdateData(TRUE);
-	// In case it's an unknown colors
+	// In case it's an unsynced colors
 	if (m_red.GetPos() != 0 || m_red.GetPos() != 255 || m_red.GetPos() != 85 || m_red.GetPos() != 89) {
-		color_name = "Unknown";
+		color_name = "Unsynced";
 	}
 	else if (m_green.GetPos() != 128 || m_green.GetPos() != 141 || m_green.GetPos() != 104 || m_green.GetPos() != 255 || m_green.GetPos() != 89 || m_green.GetPos() != 233) {
-		color_name = "Unknown";
+		color_name = "Unsynced";
 	}
 	else if (m_blue.GetPos() != 223 || m_blue.GetPos() != 89 || m_blue.GetPos() != 28 || m_blue.GetPos() != 196 || m_blue.GetPos() != 180 || m_blue.GetPos() != 23 || m_blue.GetPos() != 85 || m_blue.GetPos() != 255 || m_blue.GetPos() != 0) {
-		color_name = "Unknown";
+		color_name = "Unsynced";
 	}
 	UpdateData(FALSE);
 	CDialogEx::OnHScroll(nSBCode, nPos, pScrollBar);

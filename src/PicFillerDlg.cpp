@@ -235,7 +235,6 @@ void CPicFillerDlg::OnPaint()
 	button_turkiz.SetFaceColor(RGB(0, 223, 223), true);
 	
 	dc.SelectObject(old);
-
 	CDialogEx::OnPaint();
 }
 
@@ -484,7 +483,7 @@ void CPicFillerDlg::OnBnClickedButton18() // save btn
 	CArchive archive(&file, CArchive::store);
 	Shapes.Serialize(archive);
 	InvalidateRect(&r);
-	AfxMessageBox(_T("Saved!"));
+	MessageBox(_T("Saved!"), _T("Raz & Sahar"), MB_ICONASTERISK | MB_OK);
 }
 
 
@@ -495,7 +494,7 @@ void CPicFillerDlg::OnBnClickedButton19() // load btn
 		CArchive archive(&file, CArchive::load);
 		Shapes.Serialize(archive);
 		InvalidateRect(&r);
-		AfxMessageBox(_T("Last work loaded!"));
+		MessageBox(_T("Last work loaded!"), _T("Raz & Sahar"), MB_ICONASTERISK | MB_OK);
 	}
 	catch (...) {
 		AfxMessageBox(_T("No file found."));
@@ -647,6 +646,7 @@ void CPicFillerDlg::OnBnClickedButton13()
 	Shapes.RemoveAll();
 	undo.EnableWindow(FALSE); // disabling redo & undo btns
 	redo.EnableWindow(FALSE);
-	fillClr.EnableWindow(FALSE);
+	fillClr.EnableWindow(FALSE); // Disabling Fill Clr btn
 	Invalidate();
+	MessageBox(_T("Successfully cleaned the screen!"), _T("Raz & Sahar"), MB_ICONASTERISK | MB_OK);
 }

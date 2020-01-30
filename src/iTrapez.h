@@ -1,6 +1,7 @@
 #pragma once
 #include "Shape.h"
-class iTrapez : public Shape
+#include "Line.h"
+class iTrapez : public Line
 {
 public:
 	DECLARE_SERIAL(iTrapez)

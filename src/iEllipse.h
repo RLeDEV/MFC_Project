@@ -1,6 +1,7 @@
 #pragma once
 #include "Shape.h"
-class iEllipse : public Shape
+#include "Line.h"
+class iEllipse : public Line
 {
 public:
 	DECLARE_SERIAL(iEllipse);

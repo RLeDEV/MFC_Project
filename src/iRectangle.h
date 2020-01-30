@@ -1,7 +1,8 @@
 #pragma once
 #include "Shape.h"
+#include "Line.h"
 class iRectangle :
-	public Shape
+	public Line
 {
 public:
 	DECLARE_SERIAL(iRectangle)

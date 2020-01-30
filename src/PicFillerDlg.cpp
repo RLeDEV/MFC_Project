@@ -59,7 +59,6 @@ CPicFillerDlg::CPicFillerDlg(CWnd* pParent /*=nullptr*/)
 	shapeType = 0;
 	currentShape = 1;
 	isPressed = false;
-	FillPressed = false;
 	FillClrPressed = false;
 	color_name = "Black"; // First color
 	currentShape = 0; // Initialization for currentShape
@@ -164,7 +163,7 @@ BOOL CPicFillerDlg::OnInitDialog()
 
 
 	r.left = 250;
-	r.top = 72;
+	r.top = 100;
 	r.right = 1350;
 	r.bottom = 700;
 
@@ -426,15 +425,10 @@ void CPicFillerDlg::OnBnClickedRadio3() // Ellipse
 }
 
 
-
-
 void CPicFillerDlg::OnBnClickedRadio4() // Triangle
 {
 		currentShape = 3;
 }
-
-
-
 
 
 void CPicFillerDlg::OnBnClickedRadio5() // Trapez
@@ -450,17 +444,17 @@ void CPicFillerDlg::OnCbnSelchangeCombo1()
 	switch (choose) {
 	case 0:
 		{
-			penType = 1; // Broken pen type 
+			penType = 1; // Dashed pen type 
 			break;
 		}
 	case 1:
 		{
-			penType = 7; // Normal pen type
+			penType = 4; // Dotted pen type
 			break;
 		}
 	case 2:
 		{
-			penType = 4; // Very broken pen type
+			penType = 7; // Normal pen type
 			break;
 		}
 	}
@@ -497,13 +491,12 @@ void CPicFillerDlg::OnBnClickedButton19() // load btn
 		MessageBox(_T("Last work loaded!"), _T("Raz & Sahar"), MB_ICONASTERISK | MB_OK);
 	}
 	catch (...) {
-		AfxMessageBox(_T("No file found."));
+		AfxMessageBox(_T("File not found."));
 	}
 }
 
 void CPicFillerDlg::OnMouseMove(UINT nFlags, CPoint point) {
 	CPaintDC dc(this);
-
 	if (isPressed) {
 		Shapes[Shapes.GetSize() - 1]->setEnd(point);
 		InvalidateRect(&r);
@@ -513,39 +506,27 @@ void CPicFillerDlg::OnMouseMove(UINT nFlags, CPoint point) {
 
 void CPicFillerDlg::OnLButtonDown(UINT nFlags, CPoint point) {
 	isPressed = true;
-	if (FillPressed)
+	// New shape
+	Shape *s = 0;
+	switch (currentShape) // create the shape the user pressed
 	{
-		for (int i = Shapes.GetSize() - 1; i >= 0; i--) {
-			if (Shapes[i]->InShape(point)) {
-				command *c = new addColor(Shapes[i], RGB(m_red.GetPos(), m_green.GetPos(), m_blue.GetPos()));
-				c->perform(); // changing the color of the shape
-				commands.push(c);
-				break;
-			}
-		}
+	case 0: s = new Line(); break;
+	case 1: s = new iRectangle(); break;
+	case 2: s = new iEllipse(); break;
+	case 3: s = new iTriangle(); break;
+	case 4: s = new iTrapez(); break;
 	}
-	else { // New shape
-		Shape *s = 0;
-		switch (currentShape) // create the shape the user pressed
-		{
-		case 0: s = new Line(); break;
-		case 1: s = new iRectangle(); break;
-		case 2: s = new iEllipse(); break;
-		case 3: s = new iTriangle(); break;
-		case 4: s = new iTrapez(); break;
-		}
-		command *c = new addShape(Shapes, s);
-		c->perform(); // add shape to the array
-		commands.push(c);
-		s->setBg(RGB(m_red.GetPos(), m_green.GetPos(), m_blue.GetPos()));
-		s->setP(RGB(m_red.GetPos(), m_green.GetPos(), m_blue.GetPos()));
-		s->setPenType(penType);
-		s->setPenSize(penSize);
-		s->setStart(point);
-		s->setEnd(point);
-		undo.EnableWindow(TRUE);
-		fillClr.EnableWindow(TRUE);
-	}
+	command *c = new addShape(Shapes, s);
+	c->perform(); // add shape to the array
+	commands.push(c);
+	s->setBg(RGB(m_red.GetPos(), m_green.GetPos(), m_blue.GetPos()));
+	s->setP(RGB(m_red.GetPos(), m_green.GetPos(), m_blue.GetPos()));
+	s->setPenType(penType);
+	s->setPenSize(penSize);
+	s->setStart(point);
+	s->setEnd(point);
+	undo.EnableWindow(TRUE);
+	fillClr.EnableWindow(TRUE);
 	Invalidate();
 	CDialogEx::OnLButtonDown(nFlags, point);
 }
@@ -553,7 +534,6 @@ void CPicFillerDlg::OnLButtonDown(UINT nFlags, CPoint point) {
 void CPicFillerDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 {
 	Invalidate();
-	UpdateData(TRUE);
 	// In case it's an unsynced colors
 	if (m_red.GetPos() != 0 || m_red.GetPos() != 255 || m_red.GetPos() != 85 || m_red.GetPos() != 89) {
 		color_name = "Unsynced";
@@ -569,15 +549,13 @@ void CPicFillerDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 }
 
 void CPicFillerDlg::OnLButtonUp(UINT nFlags, CPoint point) {
-	if (!FillPressed)
-		Shapes[Shapes.GetSize() - 1]->setEnd(point);
 	isPressed = false;
 	FillClrPressed = false;
 	Invalidate();
 	CDialogEx::OnLButtonUp(nFlags, point);
 }
 
-void CPicFillerDlg::OnRButtonDown(UINT nFlags, CPoint point) {
+void CPicFillerDlg::OnRButtonDown(UINT nFlags, CPoint point) { // Filling a color into a shape
 	if (FillClrPressed)
 	{
 		for (int i = Shapes.GetSize() - 1; i >= 0; i--) {
@@ -611,7 +589,7 @@ void CPicFillerDlg::OnBnClickedButton14() // redo btn
 		}
 	}
 	else {
-		AfxMessageBox(_T("Window is already up to date."));
+		MessageBox(_T("Window is already up to date."), _T("Raz & Sahar"), MB_ICONASTERISK | MB_OK);
 	}
 	InvalidateRect(&r);
 }
